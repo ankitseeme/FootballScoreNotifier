@@ -50,7 +50,7 @@ def check_FT(score,timing,team1,team2):
         exit(0)
 
 def compare_score(prevscore,score):
-    if score == prevscore:
+    if score != prevscore:
         t1score = score.split('-')[0]
         t2score = score.split('-')[1]
         if t1score != prevscore.split('-')[0]:
@@ -85,7 +85,7 @@ if __name__ == "__main__":
         prevscore = score
         score,timest = get_score(bsObj)
         check_FT(score,timest,team1,team2)
-        time.sleep(10)
+        time.sleep(30)
         print(timest + " : " +score)
         res = compare_score(prevscore,score)
         if res == 1:
