@@ -4,37 +4,47 @@ import subprocess as s
 import time
 from urllib.error import HTTPError
 
+
 def getbsObj(url):
     try:
-        html=urlopen(url)
+        html = urlopen(url,timeout=100)
     except HTTPError as e:
-        print(e)
+        print("HTTPError")
         exit(2)
     try:
-        bsObj=BeautifulSoup(html.read(),'html.parser')
+        bsObj = BeautifulSoup(html.read(), 'html.parser')
     except:
         print("Parsing Error")
     return bsObj
 
+
 def get_team(bsObj):
     try:
-        team1 = bsObj.findAll('span',{'class':'widget-match-header__name--full'})[0].text
-        team2 = bsObj.findAll('span',{'class':'widget-match-header__name--full'})[1].text
+        team1 = bsObj.findAll('span', {'class':
+                                'widget-match-header__name--full'})[0].text
+        team2 = bsObj.findAll('span', {'class':
+                            'widget-match-header__name--full'})[1].text
     except:
-        print("Parsing Error... Error during team name extraction... Doesn't seem to be a valid match URL")
+        print("""Parsing Error... Error during team name extraction... """\
+            """Doesn't seem to be a valid match URL""")
         exit(3)
-    return team1,team2
+    return team1, team2
+
 
 def get_score(bsObj):
     try:
-        score = bsObj.find('span',{'data-slot':'score'}).text
-        timest =  bsObj.find('span',{'data-slot':'state'}).text
+        score = bsObj.find('span',
+                           {'data-slot': 'score'}).text
+        timest = bsObj.find('span',
+                            {'data-slot': 'state'}).text
     except:
-        print("Parsing Error... Error  during score extraction... Doesn't seem to be a valid match URL")
+        print("""Parsing Error... Error  during score extraction... """\
+            """Doesn't seem to be a valid match URL""")
         exit(4)
-    return score,timest
+    return score, timest
 
-def check_FT(score,timing,team1,team2):
+
+def check_FT(score, timing, team1, team2):
     if (timing == 'FT'):
         print("Game has Finished")
         if (int(score.split('-')[0]) > int(score.split('-')[1])):
@@ -44,12 +54,12 @@ def check_FT(score,timing,team1,team2):
         else:
             heading = team2 + " Won"
         final_score = team1 + " " + score.split('-')[0] + "  -  " + score.split('-')[1] + " " + team2
-        notify(heading,final_score)
-        #s.call(['notify-send',heading,final_score])
+        notify(heading, final_score)
         print("Exiting...")
         exit(0)
 
-def compare_score(prevscore,score):
+
+def compare_score(prevscore, score):
     if score != prevscore:
         t1score = score.split('-')[0]
         t2score = score.split('-')[1]
@@ -60,8 +70,9 @@ def compare_score(prevscore,score):
     else:
         return 0
 
-def notify(head,msg):
-    s.call(['notify-send',head,msg])
+
+def notify(head, msg):
+    s.call(['notify-send', head, msg])
 
 
 if __name__ == "__main__":
@@ -70,21 +81,23 @@ if __name__ == "__main__":
     except:
         print("URL Input error... Please Try again")
         exit(1)
-    #url="http://www.goal.com/en-in/match/france-v-belgium/20a3lgme79hyoxguz247lr1ex"
     bsObj = getbsObj(url)
     team1, team2 = get_team(bsObj)
-    score,timest = get_score(bsObj)
+    score, timest = get_score(bsObj)
     print(team1 + " VS " + team2)
-    print(timest + " : " +score)
+    print(timest + " : " + score)
     while True:
         bsObj = getbsObj(url)
         prevscore = score
-        score,timest = get_score(bsObj)
-        check_FT(score,timest,team1,team2)
+        score, timest = get_score(bsObj)
+        check_FT(score, timest, team1, team2)
         time.sleep(30)
-        print(timest + " : " +score)
-        res = compare_score(prevscore,score)
+        print(timest + " : " + score)
+        res = compare_score(prevscore, score)
         if res == 1:
-            notify(str(team1) + " scored",score)
+            print(str(team1) + " scored")
+            notify(str(team1) + " scored", score)
         elif res == 2:
-            notify(str(team2) + " scored",score)
+            print(str(team2) + " scored")
+            notify(str(team2) + " scored", score)
+
